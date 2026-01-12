@@ -1,0 +1,131 @@
+.list-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.top-header {
+    width: 100%;
+    background: #1C4673;
+    border-bottom: 1px solid #79BAEC;
+    padding: 12px 16px;   
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+
+.top-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #EEF5FF; /* alb-albastrui, la fel ca textul din login */
+}
+
+.logout-btn {
+    padding: 8px 15px;
+    background: #4682B4; /* accent consistent */
+    color: #EEF5FF;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+.logout-btn:hover {
+    background: #3b6fa1; /* hover ca la butonul de login */
+}
+
+
+
+.filters {
+    display: flex;
+    gap: 8px;
+}
+
+.chip {
+    padding: 8px 12px;
+    border: 1px solid #79BAEC;
+    background: transparent;
+    color: #EEF5FF;
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.chip.is-active {
+    background: #4682B4;
+    border-color: #4682B4;
+}
+
+.event-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.event-item {
+    background: #1C4673;
+    border: 1px solid #79BAEC;
+    border-radius: 8px;
+    padding: 12px;
+    display: grid;
+    gap: 6px;
+}
+
+.event-title {
+    font-weight: 700;
+    margin: 0;
+}
+
+.event-meta {
+    font-size: 0.95rem;
+    color: #79BAEC;
+}
+
+.event-desc {
+    margin: 6px 0 0;
+    color: #EAF3FF;
+    line-height: 1.45;
+}
+
+.item-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.item-actions .btn {
+    padding: 6px 10px;
+    font-size: 14px;
+}
+
+.item-actions .btn.ghost {
+    border: 1px solid #79BAEC;
+}
+
+.badge-inline {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 999px;
+    background: #79BAEC;
+    color: #123456;
+}
+
+@media (max-width: 640px) {
+    .list-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}

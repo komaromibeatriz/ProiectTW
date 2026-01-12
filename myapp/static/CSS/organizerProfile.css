@@ -1,0 +1,92 @@
+.profile-header{
+  max-width:700px;
+  margin:0 auto 20px auto;
+  padding:20px;
+  background:#1f4e79;
+  border-radius:12px;
+}
+
+.profile-header h1{ margin:0; }
+.subtitle{ opacity:0.8; margin-bottom:12px; }
+
+.feed{
+  max-width:700px;
+  margin:0 auto;
+}
+
+.post{
+  background:#1e3f5f;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+}
+
+.post-title{ margin:0 0 6px 0; }
+
+.post-meta{
+  font-size:0.9em;
+  opacity:0.8;
+  margin-bottom:8px;
+}
+
+.tag{
+  display:inline-block;
+  background:#4682B4;
+  padding:4px 10px;
+  border-radius:14px;
+  font-size:0.8em;
+  margin-bottom:10px;
+}
+
+.post-desc{
+  margin-top:10px;
+  line-height:1.4;
+}
+
+.post-footer{
+  margin-top:12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.cap{
+  font-size:0.95em;
+  opacity:0.9;
+}
+
+/* APPLY BUTTON */
+.apply-action{
+  padding:8px 14px;
+  border-radius:10px;
+  border:1px solid #79BAEC;
+  background:#79BAEC;
+  cursor:pointer;
+  color:#001a2b;
+  font-weight:600;
+}
+
+.apply-action.cancel{
+  background:#c0392b;
+  border-color:#c0392b;
+  color:#fff;
+}
+
+/* disabled when full */
+.apply-action:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+
+.full-msg{
+  margin-top:10px;
+  opacity:0.85;
+}
+
+.hidden{ display:none; }
+
+.no-posts{
+  text-align:center;
+  opacity:0.7;
+}

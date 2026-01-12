@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizer account</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+  <link rel="stylesheet" href="{% static 'CSS/organizerAccount.css' %}">
+</head>
+<body>
+
+<header class="top-header">
+  <h2>Organizer Panel</h2>
+  <a href="{% url 'login' %}" class="logout-btn">Logout</a>
+</header>
+
+<main class="page">
+  <section class="card">
+    <h1>My account</h1>
+
+    <div class="row">
+      <label>Name</label>
+      <input id="profile_name" type="text" value="Name" readonly>
+    </div>
+
+    <div class="row">
+      <label>Username</label>
+      <input id="profile_username" type="text" value="organizer" readonly>
+    </div>
+
+    <div class="row">
+      <label>Description</label>
+      <textarea id="profile_bio" rows="3" readonly></textarea>
+    </div>
+
+    <div class="actions">
+      <button id="editProfileBtn" class="btn">Change profile details</button>
+      <a class="btn primary" href="{% url 'createEvent' %}">+ Add an event</a>
+    </div>
+  </section>
+</main>
+
+<section class="page">
+  <section class="card">
+    <div class="list-head">
+      <h2>My events</h2>
+    </div>
+
+    <ul id="eventList" class="event-list">
+    </ul>
+  </section>
+</section>
+
+<!-- JS -->
+<script src="{% static 'JS/createEvent.js' %}"></script>
+<script src="{% static 'JS/profile.js' %}"></script>
+
+</body>
+</html>

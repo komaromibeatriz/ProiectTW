@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creeaza eveniment IT</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+  <link rel="stylesheet" href="{% static 'CSS/organizerAccount.css' %}">
+</head>
+<body>
+<main class="page">
+  <section class="card">
+    <h1>Add an event</h1>
+    
+    <form class="event-form" action="{% url 'organizerAccount' %}" method="get">
+      
+      <div class="row two-col">
+        <div>
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text" placeholder="Ex: Conference IT" required>
+        </div>
+        <div>
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="">Choose...</option>
+            <option>Conference IT</option>
+            <option>Workshop</option>
+            <option>Hackathon</option>
+            <option>Meetup IT</option>
+            <option>Training / Course IT</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row two-col">
+        <div>
+          <label for="date">Date</label>
+          <input id="date" name="date" type="date" required>
+        </div>
+        <div>
+          <label for="time">Hour</label>
+          <input id="time" name="time" type="time" required>
+        </div>
+      </div>
+
+      <div class="row two-col">
+        <div>
+          <label for="location">Location</label>
+          <input id="location" name="location" type="text" placeholder="Ex: Timisoara" required>
+        </div>
+        <div>
+          <label for="capacity">Capacity</label>
+          <input id="capacity" name="capacity" type="number" min="0" placeholder="Ex: 120">
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="desc">Description</label>
+        <textarea id="desc" name="desc" rows="4" placeholder="Essential details.." required></textarea>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Send</button>
+        <a href="{% url 'organizerAccount' %}" class="btn ghost">View list</a>
+      </div>
+    </form>
+  </section>
+</main>
+
+<!-- JS -->
+<script src="{% static 'JS/createEvent.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Organizer Profile</title>
+
+  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+  <link rel="stylesheet" href="{% static 'CSS/organizerProfile.css' %}">
+</head>
+<body>
+
+<main class="page">
+
+  <section class="profile-header">
+    <h1>@{{ organizer.username }}</h1>
+    <p class="subtitle">Organizer profile</p>
+
+    <a href="{% url 'userHome' %}" class="btn ghost">← Back to Explore</a>
+  </section>
+
+  <section class="feed">
+    {% for e in events %}
+      <article class="post" data-event-id="{{ e.id }}">
+        <h3 class="post-title">{{ e.title }}</h3>
+
+        <div class="post-meta">
+          📅 {{ e.date }} • ⏰ {{ e.time }} • 📍 {{ e.location }}
+        </div>
+
+        {% if e.category %}
+          <span class="tag">{{ e.category }}</span>
+        {% endif %}
+
+        <p class="post-desc">{{ e.description }}</p>
+
+        <div class="post-footer">
+          <span class="cap">
+            👥
+            <span id="count-{{ e.id }}">{{ e.app_count }}</span>
+            {% if e.capacity %}
+              / <span id="cap-{{ e.id }}">{{ e.capacity }}</span>
+            {% endif %}
+          </span>
+
+          <button
+            class="apply-action {% if e.applied %}cancel{% endif %}"
+            data-event-id="{{ e.id }}"
+            data-applied="{% if e.applied %}1{% else %}0{% endif %}"
+            data-full="{% if e.full %}1{% else %}0{% endif %}"
+            data-capacity="{{ e.capacity|default:0 }}"
+          >
+            {% if e.applied %}Cancel application{% else %}Apply{% endif %}
+          </button>
+        </div>
+
+        {% if e.full and not e.applied %}
+          <div class="full-msg" id="fullmsg-{{ e.id }}">Event is full.</div>
+        {% else %}
+          <div class="full-msg hidden" id="fullmsg-{{ e.id }}">Event is full.</div>
+        {% endif %}
+      </article>
+    {% empty %}
+      <p class="no-posts">This organizer has no events yet.</p>
+    {% endfor %}
+  </section>
+
+</main>
+
+<script src="{% static 'JS/organizerProfile.js' %}"></script>
+</body>
+</html>

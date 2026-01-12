@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+
+# Django / local db & secrets
+db.sqlite3
+.env
+
+# Django static/media (dacă le generezi)
+staticfiles/
+media/
+
+# VS Code
+.vscode/
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# PyCharm
+.idea/

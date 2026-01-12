@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorare Evenimente</title>
+
+  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+  <link rel="stylesheet" href="{% static 'CSS/userHome.css' %}">
+</head>
+<body>
+
+<main class="page">
+  <section class="card">
+    <h1>Explore Events & Organizers</h1>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="events">Events</div>
+      <div class="tab" data-tab="my">My Applications</div>
+      <div class="tab" data-tab="searchEvent">Search Event</div>
+      <div class="tab" data-tab="searchOrg">Search Organizer</div>
+    </div>
+
+    <div id="events" class="tab-content">
+      <ul id="eventsGrid" class="events-grid"></ul>
+    </div>
+
+    <div id="my" class="tab-content hidden">
+      <h3>Events you are enrolled in</h3>
+      <ul id="myList" class="event-list"></ul>
+    </div>
+
+    <div id="searchEvent" class="tab-content hidden">
+      <input type="text" id="search" placeholder="Search…" />
+      <ul id="result" class="event-list"></ul>
+    </div>
+
+    <div id="searchOrg" class="tab-content hidden">
+      <input type="text" id="searchOrg" placeholder="Search name / username" />
+      <ul id="list" class="event-list"></ul>
+    </div>
+  </section>
+</main>
+
+{# IMPORTANT: folosim DOAR json_script, fără dublare #}
+{{ events|json_script:"events-data" }}
+{{ organizers|json_script:"orgs-data" }}
+{{ user_apps|default:"[]"|json_script:"apps-data" }}
+
+<script src="{% static 'JS/userHome.js' %}"></script>
+</body>
+</html>

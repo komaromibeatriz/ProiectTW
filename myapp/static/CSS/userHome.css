@@ -1,0 +1,45 @@
+.tabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+  flex-wrap:wrap;
+}
+
+.tab{
+  padding:8px 14px;
+  border:1px solid #79BAEC;
+  border-radius:20px;
+  cursor:pointer;
+  user-select:none;
+}
+
+.tab.active{
+  background:#4682B4;
+}
+
+.hidden{
+  display:none;
+}
+
+.apply-btn{
+  margin-top:8px;
+  padding:6px 12px;
+  border-radius:6px;
+  background:#79BAEC;
+  cursor:pointer;
+  display:inline-block;
+}
+
+.apply-btn.cancel{
+  background:#c0392b;
+}
+
+.org-link{
+  display:block;
+  color:inherit;
+  text-decoration:none;
+}
+
+.org-link:hover{
+  opacity:0.9;
+}
