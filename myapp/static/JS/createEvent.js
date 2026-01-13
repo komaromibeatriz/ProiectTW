@@ -1,12 +1,8 @@
-// myapp/static/JS/createEvent.js
-
 const form = document.querySelector(".event-form");
 const list = document.getElementById("eventList");
 
-// edit=ID (nu index!)
 const editId = new URLSearchParams(window.location.search).get("edit");
 
-// -------------------- CSRF helper --------------------
 function getCookie(name) {
   let cookieValue = null;
   if (document.cookie && document.cookie !== "") {
@@ -25,13 +21,11 @@ function getCookie(name) {
 function getCsrfTokenOrThrow() {
   const token = getCookie("csrftoken");
   if (!token) {
-    // dacă nu ai csrftoken, de obicei nu ești pe o pagină Django (sau nu ai cookie)
     throw new Error("Lipsește CSRF token. Dă refresh (Ctrl+F5) și încearcă din nou.");
   }
   return token;
 }
 
-// -------------------- API calls --------------------
 async function apiGetEvents() {
   const res = await fetch("/api/events/", { method: "GET" });
   if (!res.ok) {
@@ -57,7 +51,7 @@ async function apiCreateEvent(payload) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.error || "Eroare la creare event");
   }
-  return await res.json(); // {id: ...}
+  return await res.json(); 
 }
 
 async function apiUpdateEvent(id, payload) {
@@ -96,7 +90,6 @@ async function apiDeleteEvent(id) {
   return await res.json();
 }
 
-// -------------------- Form helpers --------------------
 function getFormPayload() {
   return {
     title: document.getElementById("title").value.trim(),
@@ -122,7 +115,6 @@ function fillFormFromEvent(ev) {
   if (btn) btn.textContent = "Save";
 }
 
-// -------------------- Render list --------------------
 function renderEvents(events) {
   if (!list) return;
   list.innerHTML = "";
@@ -148,12 +140,10 @@ function renderEvents(events) {
   });
 }
 
-// -------------------- Init page --------------------
 async function initPage() {
   const events = await apiGetEvents();
   renderEvents(events);
 
-  // dacă e edit=ID, umple formularul
   if (form && editId) {
     const ev = events.find((x) => String(x.id) === String(editId));
     if (ev) fillFormFromEvent(ev);
@@ -164,7 +154,6 @@ window.addEventListener("DOMContentLoaded", () => {
   initPage().catch((e) => alert(e.message));
 });
 
-// -------------------- Submit form --------------------
 if (form) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -172,7 +161,6 @@ if (form) {
     try {
       const payload = getFormPayload();
 
-      // validări minime (ca să nu trimiți gol)
       if (!payload.title || !payload.category || !payload.date || !payload.time || !payload.location || !payload.description) {
         alert("Completează toate câmpurile obligatorii.");
         return;
@@ -192,7 +180,6 @@ if (form) {
   });
 }
 
-// -------------------- Click on list actions --------------------
 if (list) {
   list.addEventListener("click", async (e) => {
     const btn = e.target.closest("button");

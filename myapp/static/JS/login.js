@@ -8,7 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const roleSelect = loginForm.querySelector('select[name="role"]');
 
     if (!usernameInput || !passwordInput || !roleSelect) {
-      // dacă lipsește vreun câmp, nu blocăm submit-ul
       return;
     }
 
@@ -37,6 +36,5 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // dacă totul e ok -> NU facem preventDefault -> Django primește POST
   });
 });

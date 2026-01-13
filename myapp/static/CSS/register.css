@@ -1,3 +1,4 @@
+
 * {
   margin: 0;
   padding: 0;
@@ -9,19 +10,18 @@ body {
   background-color: #f7f7f8;
   color: #111827;
   min-height: 100vh;
+  padding-top: 72px; 
 }
+
 .top-header {
-  position: fixed;     
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-  z-index: 1000;        
+  z-index: 1000;
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
-}
-body {
-  padding-top: 72px;  
 }
 
 .top-inner {
@@ -30,28 +30,19 @@ body {
   padding: 0px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between; 
-  gap: 20px;
+  justify-content: flex-start;
 }
-
-.top-actions {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0; 
-}
-
-
 
 .brand {
   display: flex;
-  align-items: center;     
+  align-items: center;
   gap: 14px;
 }
 
 .brand-logo {
-  width: 150px;            
+  width: 150px;
   height: 150px;
-  max-height: 200px;         
+  max-height: 200px;
   object-fit: contain;
 }
 
@@ -74,9 +65,8 @@ body {
   margin-top: 2px;
 }
 
-
 .login-page {
-  min-height: calc(100vh - 150px); 
+  min-height: calc(100vh - 150px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -107,7 +97,7 @@ body {
   margin-bottom: 14px;
   border-radius: 10px;
   border: 1px solid #d1d5db;
-  background-color: #eef4ff; 
+  background-color: #eef4ff;
   color: #111827;
   font-size: 14px;
   transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
@@ -171,7 +161,6 @@ body {
   text-decoration: underline;
 }
 
-
 .site-footer {
   width: 100%;
   padding: 18px 24px 26px;
@@ -206,8 +195,6 @@ body {
 .footer-copy {
   color: #6b7280;
 }
-
-
 @media (max-width: 520px) {
   .brand-logo {
     width: 110px;

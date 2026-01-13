@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Events – Home</title>
+    <link rel="stylesheet" href="{% static 'CSS/homepage.css' %}">
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="top-inner">
+            <a class="brand" href="{% url 'homepage' %}">
+                <img src="{% static 'Images/logo.png' %}" alt="Logo" class="brand-logo" />
+                <div class="brand-text">
+                    <span class="brand-name">Smart Events</span>
+                    <span class="brand-tagline">CS events • workshops • hackathons</span>
+                </div>
+            </a>
+
+            <nav class="top-actions">
+                <a class="nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-btn" href="{% url 'register' %}">Register</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="page-container">
+        <section class="hero-section">
+            <div class="hero-card">
+                <div class="hero-left">
+                    <h1>Computer Science events in one place.</h1>
+                    <p>Explore workshops, seminars, coding meetups and hackathons.</p>
+                    <div class="hero-cta">
+                        <a class="primary-btn" href="{% url 'register' %}">Create account</a>
+                        <a class="secondary-btn" href="{% url 'login' %}">Login</a>
+                    </div>
+                </div>
+                <div class="hero-right">
+                    <div class="aside-info">
+                        <strong>Built for CS</strong>
+                        <p>Academic tech events, clean UI.</p>
+                    </div>
+                    <div class="aside-info">
+                        <strong>Organizer tools</strong>
+                        <p>Manage applications easily.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="content-section">
+            <h2>Upcoming events</h2>
+            <div class="events-grid">
+                {% for e in events %}
+                <div class="event-card">
+                    <div class="event-header">
+                        <h3>{{ e.title }}</h3>
+                        <span class="category-tag">Workshop</span>
+                    </div>
+                    <div class="event-details">
+                        <p><strong>Date:</strong> {{ e.date }}</p>
+                        <p><strong>Location:</strong> {{ e.location }}</p>
+                    </div>
+                    <div class="event-actions">
+                        <a href="{% url 'login' %}" class="view-btn">Participate</a>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No events available.</p>
+                {% endfor %}
+            </div>
+        </section>
+                <footer class="site-footer">
+    <div class="footer-emails">
+      <a href="mailto:beatriz.komaromi05@e-uvt.ro">beatriz.komaromi05@e-uvt.ro</a>
+      <span class="dot">•</span>
+      <a href="mailto:naomi.rascol04@e-uvt.ro">naomi.rascol04@e-uvt.ro</a>
+    </div>
+    <div class="footer-copy">
+      © 2026 Smart events — Timișoara, Romania
+    </div>
+  </footer>
+
+</body>
+</html>

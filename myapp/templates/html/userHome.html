@@ -2,52 +2,91 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Explorare Evenimente</title>
-
-  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
-  <link rel="stylesheet" href="{% static 'CSS/userHome.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Events – Smart Events</title>
+    <link rel="stylesheet" href="{% static 'CSS/userHome.css' %}">
 </head>
 <body>
 
-<main class="page">
-  <section class="card">
-    <h1>Explore Events & Organizers</h1>
+<header class="top-header">
+    <div class="top-inner">
+        <a class="brand" href="{% url 'homepage' %}">
+            <img src="{% static 'Images/logo.png' %}" alt="Smart Events" class="brand-logo" />
+            <div class="brand-text">
+                <div class="brand-name">Smart Events</div>
+                <div class="brand-tagline">Explore & Apply</div>
+            </div>
+        </a>
 
-    <div class="tabs">
-      <div class="tab active" data-tab="events">Events</div>
-      <div class="tab" data-tab="my">My Applications</div>
-      <div class="tab" data-tab="searchEvent">Search Event</div>
-      <div class="tab" data-tab="searchOrg">Search Organizer</div>
+        <nav class="top-actions">
+            <a class="home-link" href="{% url 'homepage' %}">🏠 Acasă</a>
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+        </nav>
     </div>
+</header>
 
-    <div id="events" class="tab-content">
-      <ul id="eventsGrid" class="events-grid"></ul>
-    </div>
+<main class="page-container">
+    <section class="content-card">
+        <div class="card-header">
+            <h1>Explore Events & Organizers</h1>
+            <p>Find the best workshops and hackathons in IT.</p>
+        </div>
 
-    <div id="my" class="tab-content hidden">
-      <h3>Events you are enrolled in</h3>
-      <ul id="myList" class="event-list"></ul>
-    </div>
+        <div class="tabs-container">
+            <div class="tab active" data-tab="events">All Events</div>
+            <div class="tab" data-tab="my">My Applications</div>
+            <div class="tab" data-tab="searchEvent">Search Event</div>
+            <div class="tab" data-tab="searchOrg">Search Organizer</div>
+        </div>
 
-    <div id="searchEvent" class="tab-content hidden">
-      <input type="text" id="search" placeholder="Search…" />
-      <ul id="result" class="event-list"></ul>
-    </div>
+        <div class="tab-main-content">
 
-    <div id="searchOrg" class="tab-content hidden">
-      <input type="text" id="searchOrg" placeholder="Search name / username" />
-      <ul id="list" class="event-list"></ul>
-    </div>
-  </section>
+            <div id="events" class="tab-content">
+                <ul id="eventsGrid" class="events-grid"></ul>
+            </div>
+
+            <div id="my" class="tab-content hidden">
+                <ul id="myList" class="event-list"></ul>
+            </div>
+
+            <div id="searchEvent" class="tab-content hidden">
+                <div class="search-box">
+                    <input type="text" id="search" placeholder="Search by event title…" />
+                </div>
+                <ul id="result" class="event-list"></ul>
+            </div>
+
+            <div id="searchOrg" class="tab-content hidden">
+                <div class="search-box">
+                    <input type="text" id="searchOrgInput" placeholder="Search by organizer name…" />
+                </div>
+                <ul id="list" class="event-list"></ul>
+            </div>
+
+        </div>
+    </section>
 </main>
 
-{# IMPORTANT: folosim DOAR json_script, fără dublare #}
+<footer class="site-footer">
+    <div class="footer-emails">
+        <a href="mailto:beatriz.komaromi05@e-uvt.ro">beatriz.komaromi05@e-uvt.ro</a>
+        <span class="dot">•</span>
+        <a href="mailto:naomi.rascol04@e-uvt.ro">naomi.rascol04@e-uvt.ro</a>
+    </div>
+    <div class="footer-copy">
+        © 2026 Place Informatics Ltd — Timișoara, Romania
+    </div>
+</footer>
+
 {{ events|json_script:"events-data" }}
 {{ organizers|json_script:"orgs-data" }}
-{{ user_apps|default:"[]"|json_script:"apps-data" }}
+{{ user_apps|json_script:"apps-data" }}
 
 <script src="{% static 'JS/userHome.js' %}"></script>
+
 </body>
 </html>

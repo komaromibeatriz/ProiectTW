@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const roleSelect = registerForm.querySelector('select[name="role"]');
 
     if (!usernameInput || !emailInput || !passwordInput || !roleSelect) {
-      return; // nu blocăm dacă lipsește ceva
+      return; 
     }
 
     const username = usernameInput.value.trim();
@@ -44,7 +44,5 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("Parola invalidă (min 7, literă mare+mică, cifră, simbol). Ex: Abcdef1!");
       return;
     }
-
-    // dacă totul e ok -> se trimite la Django normal
   });
 });

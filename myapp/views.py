@@ -1,15 +1,16 @@
 import re
 import json
+import csv
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login as auth_login
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
-from django.db.models import Count
+from django.db.models import Count, Exists, OuterRef, Avg
 
-from .models import Event, Application
+from .models import Event, Application, OrganizerReview
 
 
 EMAIL_REGEX = re.compile(r"^[a-z]+\.[a-z]+[0-9]{0,2}@e-uvt\.ro$", re.I)
@@ -17,12 +18,16 @@ PASSWORD_REGEX = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{7,}$")
 USERNAME_REGEX = re.compile(r"^[a-zA-Z0-9._-]{3,30}$")
 
 
-# ---------- AUTH ----------
+def homepage(request):
+    events = Event.objects.all().order_by("-created_at")[:12]
+    return render(request, "html/homepage.html", {"events": events})
+
+
 def login_view(request):
     if request.method == "POST":
         username = (request.POST.get("username") or "").strip()
         password = request.POST.get("password") or ""
-        selected_role = request.POST.get("role")  # organizer / participant
+        selected_role = request.POST.get("role") 
 
         user = authenticate(request, username=username, password=password)
         if not user:
@@ -31,7 +36,6 @@ def login_view(request):
         is_organizer = user.groups.filter(name="organizer").exists()
         is_participant = user.groups.filter(name="participant").exists()
 
-        # fallback pentru conturi vechi
         if not is_organizer and not is_participant:
             is_participant = True
 
@@ -49,12 +53,17 @@ def login_view(request):
     return render(request, "html/login.html")
 
 
+def logout_view(request):
+    auth_logout(request)
+    return redirect("login")
+
+
 def register(request):
     if request.method == "POST":
         username = (request.POST.get("username") or "").strip()
         email = (request.POST.get("email") or "").strip()
         password = request.POST.get("password") or ""
-        role = request.POST.get("role")  # organizer / participant
+        role = request.POST.get("role")
 
         if not USERNAME_REGEX.match(username):
             return render(request, "html/register.html", {"error": "Username invalid (min 3 caractere, doar litere/cifre și . _ -)"})
@@ -85,20 +94,24 @@ def register(request):
 
     return render(request, "html/register.html")
 
-from django.db.models import Count
 
 @login_required(login_url="login")
 def userHome(request):
-    qs = (
-        Event.objects.all()
-        .order_by("-created_at")
-        .annotate(app_count=Count("applications"))  # <-- IMPORTANT: applications, nu application
+    raw_events = (
+        Event.objects
+        .select_related("organizer")
+        .annotate(applicants_count=Count("applications"))
         .values(
-            "id", "title", "category", "date", "time",
-            "location", "capacity", "description", "organizer_id", "app_count"
+            "id", "title", "category", "date", "time", "location", "capacity", "description",
+            "organizer_id", "organizer__username",
+            "applicants_count"
         )
     )
-    events = list(qs)
+
+    events = []
+    for e in raw_events:
+        e["organizer_name"] = e.pop("organizer__username", "")
+        events.append(e)
 
     my_apps = list(
         Application.objects.filter(user=request.user)
@@ -117,42 +130,102 @@ def userHome(request):
 
 @login_required(login_url="login")
 def organizerAccount(request):
-    return render(request, "html/organizerAccount.html")
+    
+    me = request.user
+
+    my_events = (
+        Event.objects
+        .filter(organizer=me)
+        .annotate(applicants_count=Count("applications"))
+        .order_by("-created_at")
+    )
+
+    reviews_qs = OrganizerReview.objects.filter(
+        organizer=me
+    ).select_related("user")
+
+    reviews_stats = reviews_qs.aggregate(avg=Avg("rating"))
+    avg_rating = float(reviews_stats["avg"] or 0)
+    reviews_count = reviews_qs.count()
+
+    return render(request, "html/organizerAccount.html", {
+        "me": me,
+        "my_events": my_events,
+
+        "reviews": reviews_qs,
+        "avg_rating": avg_rating,
+        "reviews_count": reviews_count,
+    })
+
 
 
 @login_required(login_url="login")
 def createEvent(request):
     return render(request, "html/createEvent.html")
 
+
 @login_required(login_url="login")
 def organizer_profile(request, organizer_id):
     organizer = get_object_or_404(User, id=organizer_id)
 
-    # IMPORTANT: "applications" (NU "application")
-    events = list(
+    if request.method == "POST" and request.POST.get("review_submit"):
+        if organizer.id != request.user.id:
+            try:
+                rating = int(request.POST.get("rating") or 0)
+            except ValueError:
+                rating = 0
+
+            rating = max(1, min(5, rating)) 
+            comment = (request.POST.get("comment") or "").strip()
+
+            OrganizerReview.objects.update_or_create(
+                organizer=organizer,
+                user=request.user,
+                defaults={"rating": rating, "comment": comment},
+            )
+
+        return redirect("organizer_profile", organizer_id=organizer_id)
+
+    user_app_exists = Application.objects.filter(
+        user=request.user,
+        event_id=OuterRef("pk")
+    )
+
+    events = (
         Event.objects
         .filter(organizer_id=organizer_id)
-        .annotate(applied_count=Count("applications"))
         .order_by("-created_at")
-        .values(
-            "id", "title", "category", "date", "time", "location",
-            "capacity", "description", "created_at", "applied_count"
+        .annotate(
+            app_count=Count("applications", distinct=True),
+            applied=Exists(user_app_exists)
         )
     )
 
-    # ce aplicații are userul curent (ca să știm Apply/Cancel în profil)
-    my_apps = list(
-        Application.objects.filter(user=request.user)
-        .values_list("event_id", flat=True)
-    )
+   
+    reviews_qs = OrganizerReview.objects.filter(
+        organizer=organizer
+    ).select_related("user")
+
+    stats = reviews_qs.aggregate(avg=Avg("rating"))
+    avg_rating = float(stats["avg"] or 0)
+    reviews_count = reviews_qs.count()
+
+    my_review = OrganizerReview.objects.filter(
+        organizer=organizer,
+        user=request.user
+    ).first()
 
     return render(request, "html/organizerProfile.html", {
         "organizer": organizer,
         "events": events,
-        "user_apps": my_apps,
+
+        "reviews": reviews_qs,
+        "avg_rating": avg_rating,
+        "reviews_count": reviews_count,
+        "my_review": my_review,
     })
 
-# ---------- EVENTS API ----------
+
 @require_http_methods(["GET", "POST"])
 @login_required(login_url="login")
 def api_events(request):
@@ -160,7 +233,6 @@ def api_events(request):
         events = list(Event.objects.all().values())
         return JsonResponse({"events": events}, status=200)
 
-    # POST create
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
@@ -168,12 +240,12 @@ def api_events(request):
 
     event = Event.objects.create(
         organizer=request.user,
-        title=data.get("title", "").strip(),
+        title=(data.get("title", "") or "").strip(),
         category=data.get("category", ""),
         date=data.get("date", ""),
         time=data.get("time", ""),
-        location=data.get("location", "").strip(),
-        description=data.get("description", "").strip(),
+        location=(data.get("location", "") or "").strip(),
+        description=(data.get("description", "") or "").strip(),
         capacity=data.get("capacity") or 0,
     )
 
@@ -185,7 +257,6 @@ def api_events(request):
 def api_event_detail(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
-    # opțional: doar organizer-ul are voie să editeze/șteargă
     if event.organizer_id != request.user.id:
         return JsonResponse({"error": "Nu ai permisiune."}, status=403)
 
@@ -193,7 +264,6 @@ def api_event_detail(request, event_id):
         event.delete()
         return JsonResponse({"ok": True}, status=200)
 
-    # PUT update
     try:
         data = json.loads(request.body.decode("utf-8"))
     except json.JSONDecodeError:
@@ -211,46 +281,52 @@ def api_event_detail(request, event_id):
     return JsonResponse({"ok": True}, status=200)
 
 
-# ---------- APPLY / CANCEL API ----------
 @login_required(login_url="login")
 @require_http_methods(["POST", "DELETE"])
 def api_toggle_application(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+    user = request.user
 
     if request.method == "POST":
-        # dacă e deja aplicat -> ok
-        if Application.objects.filter(user=request.user, event=event).exists():
-            app_count = Application.objects.filter(event=event).count()
-            capacity = event.capacity or 0
-            full = (capacity > 0 and app_count >= capacity)
-            return JsonResponse(
-                {"applied": True, "app_count": app_count, "capacity": capacity, "full": full},
-                status=200
-            )
+        app, created = Application.objects.get_or_create(user=user, event=event)
+        return JsonResponse({"applied": True, "created": created}, status=200)
 
-        # capacity check (IMPORTANT)
-        capacity = event.capacity or 0
-        app_count = Application.objects.filter(event=event).count()
-        if capacity > 0 and app_count >= capacity:
-            return JsonResponse(
-                {"error": "Event is full.", "applied": False, "app_count": app_count, "capacity": capacity, "full": True},
-                status=409
-            )
+    Application.objects.filter(user=user, event=event).delete()
+    return JsonResponse({"applied": False}, status=200)
 
-        Application.objects.create(user=request.user, event=event)
-        app_count = Application.objects.filter(event=event).count()
-        full = (capacity > 0 and app_count >= capacity)
-        return JsonResponse(
-            {"applied": True, "app_count": app_count, "capacity": capacity, "full": full},
-            status=200
-        )
 
-    # DELETE
-    Application.objects.filter(user=request.user, event=event).delete()
-    app_count = Application.objects.filter(event=event).count()
-    capacity = event.capacity or 0
-    full = (capacity > 0 and app_count >= capacity)
-    return JsonResponse(
-        {"applied": False, "app_count": app_count, "capacity": capacity, "full": full},
-        status=200
+@login_required(login_url="login")
+@require_http_methods(["GET"])
+def api_event_participants_csv(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    if event.organizer_id != request.user.id:
+        return HttpResponse("Forbidden", status=403)
+
+    apps = (
+        Application.objects
+        .filter(event=event)
+        .select_related("user")
+        .order_by("user__username")
     )
+
+    participants_count = apps.count()
+
+    filename = f"participants_event_{event.id}.csv"
+    response = HttpResponse(content_type="text/csv; charset=utf-8")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    response.write("\ufeff")
+
+    writer = csv.writer(response)
+    writer.writerow(["Event", event.title])
+    writer.writerow(["Participants", f"{participants_count}/{event.capacity}"])
+    writer.writerow([])
+    writer.writerow(["#", "username", "email"])
+
+    i = 1
+    for a in apps:
+        writer.writerow([i, a.user.username, a.user.email])
+        i += 1
+
+    return response

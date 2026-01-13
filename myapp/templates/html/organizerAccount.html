@@ -2,61 +2,201 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizer account</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organizer – Smart Events</title>
   <link rel="stylesheet" href="{% static 'CSS/organizerAccount.css' %}">
 </head>
 <body>
 
 <header class="top-header">
-  <h2>Organizer Panel</h2>
-  <a href="{% url 'login' %}" class="logout-btn">Logout</a>
+  <div class="top-inner">
+    <a class="brand" href="{% url 'homepage' %}">
+      <img src="{% static 'Images/logo.png' %}" alt="Smart Events" class="brand-logo" />
+      <div class="brand-text">
+        <div class="brand-name">Smart Events</div>
+        <div class="brand-tagline">Event management platform</div>
+      </div>
+    </a>
+
+    <nav class="top-actions">
+      <a class="home-link" href="{% url 'homepage' %}">🏠 Acasă</a>
+      <a class="logout-btn" href="{% url 'logout' %}">Logout</a>
+    </nav>
+  </div>
 </header>
 
-<main class="page">
-  <section class="card">
-    <h1>My account</h1>
+<main class="org-page">
+  <div class="org-wrap">
 
-    <div class="row">
-      <label>Name</label>
-      <input id="profile_name" type="text" value="Name" readonly>
+    <aside class="sidebar">
+      <section class="card profile-card">
+        <div class="card-head">
+          <h2 class="card-title">My account</h2>
+          <span class="badge">Organizer</span>
+        </div>
+        <section class="card reviews-card">
+  <div class="card-head">
+    <h2 class="card-title">My reviews</h2>
+  </div>
+
+  <div class="rating-summary">
+    <div class="stars">
+      {% for i in "12345" %}
+        {% if avg_rating|floatformat:0 >= forloop.counter %}
+          <span class="star filled">★</span>
+        {% else %}
+          <span class="star">★</span>
+        {% endif %}
+      {% endfor %}
     </div>
-
-    <div class="row">
-      <label>Username</label>
-      <input id="profile_username" type="text" value="organizer" readonly>
+    <div class="rating-text">
+      {{ avg_rating|floatformat:1 }} / 5 • {{ reviews_count }} review{{ reviews_count|pluralize }}
     </div>
+  </div>
 
-    <div class="row">
-      <label>Description</label>
-      <textarea id="profile_bio" rows="3" readonly></textarea>
-    </div>
-
-    <div class="actions">
-      <button id="editProfileBtn" class="btn">Change profile details</button>
-      <a class="btn primary" href="{% url 'createEvent' %}">+ Add an event</a>
-    </div>
-  </section>
-</main>
-
-<section class="page">
-  <section class="card">
-    <div class="list-head">
-      <h2>My events</h2>
-    </div>
-
-    <ul id="eventList" class="event-list">
-    </ul>
-  </section>
+  <div class="reviews-mini">
+    {% for r in reviews|slice:":5" %}
+      <div class="review-mini-item">
+        <div class="review-mini-top">
+          <span class="review-mini-user">@{{ r.user.username }}</span>
+          <span class="review-mini-stars">
+            {% for i in "12345" %}
+              {% if r.rating >= forloop.counter %}<span class="star filled">★</span>{% else %}<span class="star">★</span>{% endif %}
+            {% endfor %}
+          </span>
+        </div>
+        {% if r.comment %}
+          <div class="review-mini-comment">{{ r.comment }}</div>
+        {% endif %}
+        <div class="review-mini-date">{{ r.created_at|date:"d.m.Y" }}</div>
+      </div>
+    {% empty %}
+      <div class="empty-state"><p>No reviews yet.</p></div>
+    {% endfor %}
+  </div>
 </section>
 
-<!-- JS -->
-<script src="{% static 'JS/createEvent.js' %}"></script>
-<script src="{% static 'JS/profile.js' %}"></script>
+        <div class="form-grid">
+          <div class="field">
+            <label>Name</label>
+            <input type="text" value="{{ me.first_name|default:me.username }}" disabled>
+          </div>
+          <div class="field">
+            <label>Username</label>
+            <input type="text" value="{{ me.username }}" disabled>
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="text" value="{{ me.email }}" disabled>
+          </div>
+        </div>
 
+        <div class="actions">
+          <a class="primary-btn" href="{% url 'createEvent' %}">+ Add an event</a>
+        </div>
+      </section>
+    </aside>
+
+    <section class="events-content">
+      <div class="section-header">
+        <h2 class="card-title">My events</h2>
+        <p class="section-desc">Manage your published events and hackathons.</p>
+      </div>
+
+      <div class="event-list" id="myEventsList">
+        {% for e in my_events %}
+          <article class="event-item" data-id="{{ e.id }}">
+            <div class="event-body">
+              <div class="event-header-row">
+                <h3 class="event-title">{{ e.title }}</h3>
+                <div class="event-pills">
+                  <span class="pill">{{ e.date }}</span>
+                  <span class="pill">{{ e.location }}</span>
+                </div>
+              </div>
+              <p class="event-desc">{{ e.description }}</p>
+              <div class="event-meta-footer">
+                <span>🕒 {{ e.time }}</span>
+                <span>👥 Cap: {{ e.capacity }}</span>
+              </div>
+            </div>
+
+            <div class="item-actions">
+              <a class="ghost-btn" href="{% url 'createEvent' %}?edit={{ e.id }}">Edit</a>
+
+              <a class="ghost-btn" href="/api/events/{{ e.id }}/participants.csv">Participants</a>
+
+              <button class="danger-btn delete-btn" type="button" data-id="{{ e.id }}">Delete</button>
+            </div>
+          </article>
+        {% empty %}
+          <div class="empty-state">
+            <p>No events yet. Click "Add an event" to start.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-emails">
+    <a href="mailto:beatriz.komaromi05@e-uvt.ro">beatriz.komaromi05@e-uvt.ro</a>
+    <span class="dot">•</span>
+    <a href="mailto:naomi.rascol04@e-uvt.ro">naomi.rascol04@e-uvt.ro</a>
+  </div>
+  <div class="footer-copy">
+    © 2026 Place Informatics Ltd — Timișoara, Romania
+  </div>
+</footer>
+
+<script>
+(function () {
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let cookie of cookies) {
+        cookie = cookie.trim();
+        if (cookie.startsWith(name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  async function deleteEvent(eventId) {
+    if (!confirm("Are you sure you want to delete this event?")) return;
+
+    const res = await fetch("/api/events/" + eventId + "/", {
+      method: "DELETE",
+      headers: { "X-CSRFToken": getCookie("csrftoken") }
+    });
+
+    if (!res.ok) {
+      alert("Could not delete event.");
+      return;
+    }
+
+    const item = document.querySelector('.event-item[data-id="' + eventId + '"]');
+    if (item) item.remove();
+
+    const list = document.getElementById("myEventsList");
+    if (list && list.querySelectorAll(".event-item").length === 0) {
+      list.innerHTML = '<div class="empty-state"><p>No events yet.</p></div>';
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".delete-btn");
+    if (!btn) return;
+    const id = btn.getAttribute("data-id");
+    if (id) deleteEvent(id);
+  });
+})();
+</script>
 </body>
 </html>
